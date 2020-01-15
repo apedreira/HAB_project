@@ -1,7 +1,7 @@
 const webdriver = require('selenium-webdriver');
 const dotEnv = require('dotenv').config();
 const fs = require('fs')
-const downloadDir = '/home/adri/Escritorio/development/hack_a_bos/Project/invoice_aggregator/tmp/'
+const downloadDir = '/home/adri/Escritorio/scrapping/tmp/'
 const LOGIN_URL = process.env.AMAZON_URL
 const USERNAME = process.env.AMAZON_USERNAME
 const PASSWORD = process.env.AMAZON_PASSWORD
@@ -28,17 +28,13 @@ const scrape = async () => {
           if (await checkIfDownloaded(downloadDir, orderData)) {
             return
           }
-          //clearInvoice()
-          const fileName ="Invoice.pdf"
-          fs.unlink(downloadDir + fileName, function (err) {
-            if (err) throw err;
-          })
           await getPdfFromOrder(driver)
-         
+     
           await new Promise((resolve, reject) => {
             let count = 0
             const i = setInterval(async() => {
               count++
+              console.log("Counter: "+count)
               if (count < 10) {
                 console.log("Entra: "+count)
                 clearInterval(i)
@@ -46,28 +42,27 @@ const scrape = async () => {
               }
               console.log("Fuera: "+count)
               try { 
-                await renamePdf(orderData, downloadDir)
+                renamePdf(orderData, downloadDir)
                 clearInterval(i)
                 resolve()
               }
               catch (e) { }
             }, 1000)
           })
-          //await driver.sleep(5000)
-        }
+       }
       }
     }
   }
 }
 
-const clearInvoice = async (downloadDir) => {
+/*const clearInvoice = async (downloadDir) => {
   const fileName ="Invoice.pdf"
   fs.unlink(downloadDir + fileName, function (err) {
     if(err) {console.log("Can't find Invoice.pdf")}
     else {console.log("Previous Invoice.pdf deleted")}
     
   })
-}
+}*/
 const initialize = async (downloadDir) => {
   const defaultDownloadDir = '/home/adri/Escritorio'
   downloadDir = downloadDir || defaultDownloadDir;
@@ -246,10 +241,11 @@ const checkIfDownloaded = async (downloadDir, orderData) => {
 
 const renamePdf = async (orderData, dir) => {
   console.log(`${dir}Invoice.pdf`, `${dir}${orderData.id}.pdf`)
-  fs.rename(`${dir}Invoice.pdf`, `${dir}${orderData[0].id}.pdf`, function (err) {
+  fs.renameSync(`${dir}Invoice.pdf`, `${dir}${orderData[0].id}.pdf`)
+  /*fs.rename(`${dir}Invoice.pdf`, `${dir}${orderData[0].id}.pdf`, function (err) {
     if (err) throw err;
     console.log("File renamed")
-  })
+  })*/
 }
 
 
