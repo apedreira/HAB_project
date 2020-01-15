@@ -1,0 +1,4 @@
+/node_modules
+.env
+.getPagesOld.js
+.renamePDF.js
